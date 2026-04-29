@@ -1,0 +1,20 @@
+{
+  "name": "the-different",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "eslint apps",
+    "lint:fix": "eslint apps --fix",
+    "lint:turbo": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "prettier": "^3.5.3",
+    "turbo": "^2.6.3",
+    "typescript": "~5.8.3"
+  },
+  "packageManager": "pnpm@10.20.0"
+}
