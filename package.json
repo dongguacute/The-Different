@@ -4,8 +4,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "eslint apps",
-    "lint:fix": "eslint apps --fix",
+    "lint": "eslint apps packages",
+    "lint:fix": "eslint apps packages --fix",
     "lint:turbo": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
