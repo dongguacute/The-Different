@@ -5,4 +5,5 @@ export type Message= {
      gender: "male" | "female" | undefined;
      numberOfPeople: number;
      relationship: string;
+     weather: "sunny" | "rainy";
 }
