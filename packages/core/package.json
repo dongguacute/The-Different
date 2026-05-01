@@ -25,6 +25,7 @@
   "files": ["src"],
   "scripts": {
     "build": "tsc --noEmit",
+    "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "lint": "eslint ."
   },
