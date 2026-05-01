@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { ChatSidebar, Session } from "./ChatSidebar";
 import { ChatMessage, Message } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
+import { ChatForm, type ChatFormData } from "./ChatForm";
 import { LuPanelLeftOpen } from "react-icons/lu";
 
 export function ChatLayout() {
@@ -117,12 +118,12 @@ export function ChatLayout() {
     
     setIsLoading(true);
 
-    // 模拟AI回复
+    // 模拟AI回复 (TODO: 这里也应该调用真正的 API，后续可以扩展普通对话)
     setTimeout(() => {
       const response: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "这是一个模拟的 AI 回复。你可以根据自己的需求在这里进行更多的定制化设计。",
+        content: "目前这是一条普通对话的模拟回复。如果需要继续生成，可以对接对应的大模型API。",
       };
       
       setAllMessages(prev => {
@@ -134,6 +135,116 @@ export function ChatLayout() {
       });
       setIsLoading(false);
     }, 1500);
+  };
+
+  const handleFormSubmit = async (formData: ChatFormData) => {
+    const content = formData.text || "帮我规划一下行程";
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: `[行程需求] 城市: ${formData.city} | 人数: ${formData.numberOfPeople} ${formData.relationship ? `(${formData.relationship})` : ""} | 年龄: ${formData.age} | 想法: ${content}`,
+    };
+
+    let activeSessionId = currentSessionId;
+
+    if (!activeSessionId) {
+      activeSessionId = Date.now().toString();
+      const newSession: Session = {
+        id: activeSessionId,
+        title: formData.city + "出行规划",
+        date: new Date().toLocaleDateString()
+      };
+      setSessions(prev => [newSession, ...prev]);
+      setCurrentSessionId(activeSessionId);
+    }
+
+    const finalSessionId = activeSessionId;
+
+    setAllMessages(prev => {
+      const currentMessages = prev[finalSessionId] || [];
+      return {
+        ...prev,
+        [finalSessionId]: [...currentMessages, newMessage]
+      };
+    });
+    
+    setIsLoading(true);
+
+    try {
+      const savedApi = localStorage.getItem("apiSettings");
+      let apiSettings = undefined;
+      if (savedApi) {
+        try {
+          apiSettings = JSON.parse(savedApi);
+        } catch (e) {}
+      }
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, apiSettings }),
+      });
+
+      if (!res.body) throw new Error("No response body");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let done = false;
+      let accumulatedContent = "";
+
+      const responseMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: accumulatedContent,
+      };
+
+      setAllMessages(prev => {
+        const currentMessages = prev[finalSessionId] || [];
+        return {
+          ...prev,
+          [finalSessionId]: [...currentMessages, responseMessage]
+        };
+      });
+
+      setIsLoading(false); // 收到流响应后关闭 loading
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          accumulatedContent += decoder.decode(value, { stream: true });
+          
+          setAllMessages(prev => {
+            const currentMessages = prev[finalSessionId] || [];
+            const newMessages = [...currentMessages];
+            const lastIndex = newMessages.length - 1;
+            if (lastIndex >= 0 && newMessages[lastIndex].id === responseMessage.id) {
+               newMessages[lastIndex] = { ...newMessages[lastIndex], content: accumulatedContent };
+            }
+            return {
+              ...prev,
+              [finalSessionId]: newMessages
+            };
+          });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "请求出错，请检查网络或环境变量配置。",
+      };
+      setAllMessages(prev => {
+        const currentMessages = prev[finalSessionId] || [];
+        return {
+          ...prev,
+          [finalSessionId]: [...currentMessages, errorMessage]
+        };
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // 避免在客户端挂载前渲染内容，防止与服务器端渲染的内容不匹配（SSR Hydration 错误）
@@ -199,16 +310,8 @@ export function ChatLayout() {
         <div className="flex-1 overflow-y-auto">
           <div className="mx-auto flex w-full max-w-3xl flex-col px-4 py-8 sm:px-6 md:py-12">
             {messages.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center py-20 text-center animate-in fade-in duration-500">
-                <div className="mb-6 rounded-2xl bg-zinc-100 p-4 dark:bg-zinc-800">
-                  <span className="text-4xl">👋</span>
-                </div>
-                <h2 className="mb-2 text-2xl font-semibold tracking-tight text-zinc-800 dark:text-zinc-100">
-                  欢迎使用 The Different
-                </h2>
-                <p className="text-zinc-500 dark:text-zinc-400">
-                  你可以问我任何问题，或者让我帮你处理各种任务
-                </p>
+              <div className="flex h-full flex-col justify-center py-4 animate-in fade-in duration-500">
+                <ChatForm onSubmit={handleFormSubmit} isLoading={isLoading} />
               </div>
             ) : (
               <div className="flex flex-col space-y-2 pb-20">
@@ -237,9 +340,11 @@ export function ChatLayout() {
         </div>
 
         {/* 底部输入框 */}
-        <div className="shrink-0 bg-linear-to-t from-white via-white to-transparent pt-6 dark:from-[#121212] dark:via-[#121212]">
-          <ChatInput onSend={handleSend} isLoading={isLoading} />
-        </div>
+        {messages.length > 0 && (
+          <div className="shrink-0 bg-linear-to-t from-white via-white to-transparent pt-6 dark:from-[#121212] dark:via-[#121212]">
+            <ChatInput onSend={handleSend} isLoading={isLoading} />
+          </div>
+        )}
       </main>
     </div>
   );

@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { LuBot, LuUser } from "react-icons/lu";
 
 export type Role = "user" | "assistant";
@@ -38,7 +40,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
         )}
         <div className="flex-1 space-y-2 overflow-hidden px-1">
           <div className="prose prose-sm dark:prose-invert max-w-none break-words leading-relaxed text-inherit">
-            {message.content}
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {message.content || ""}
+            </ReactMarkdown>
           </div>
         </div>
         {isUser && (
