@@ -18,6 +18,7 @@ export function ChatLayout() {
 
   // 初始加载：从 localStorage 读取数据，并根据屏幕宽度决定侧边栏初始状态
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     
     try {

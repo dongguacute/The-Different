@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { LuMessageSquare, LuPlus, LuSettings, LuTrash2, LuPanelLeftClose } from "react-icons/lu";
 
 export interface Session {
@@ -110,10 +111,10 @@ export function ChatSidebar({
 
       {/* 底部设置区 */}
       <div className="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
-        <button className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm text-zinc-700 transition-colors hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-800/50">
+        <Link href="/settings" className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm text-zinc-700 transition-colors hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-800/50">
           <LuSettings size={18} />
           <span>设置</span>
-        </button>
+        </Link>
       </div>
     </div>
   );
