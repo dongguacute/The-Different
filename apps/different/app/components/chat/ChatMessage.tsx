@@ -67,33 +67,36 @@ export function ChatMessage({ message }: ChatMessageProps) {
   };
 
   return (
-    <div
-      className={`flex w-full ${
-        isUser ? "justify-end" : "justify-start"
-      } mb-6`}
-    >
-      <div
-        className={`flex max-w-[85%] gap-4 rounded-2xl p-4 md:max-w-[75%] ${
-          isUser
-            ? "bg-black text-white dark:bg-zinc-200 dark:text-black rounded-br-sm"
-            : "bg-white text-zinc-900 shadow-sm border border-zinc-100 dark:bg-[#1a1a1a] dark:text-zinc-100 dark:border-zinc-800 rounded-bl-sm"
-        }`}
-      >
-        {!isUser && (
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
-            <LuBot size={18} />
+    <div className={`flex w-full ${isUser ? "justify-end" : "justify-start"} mb-6`}>
+      <div className={`flex max-w-[85%] md:max-w-[75%] gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+        <div
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+            isUser
+              ? "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+              : "bg-black text-white dark:bg-white dark:text-black"
+          }`}
+        >
+          {isUser ? <LuUser size={18} /> : <LuBot size={18} />}
+        </div>
+
+        <div className={`flex flex-col gap-2 min-w-0 ${isUser ? "items-end" : "items-start"}`}>
+          <div
+            className={`rounded-3xl px-5 py-3.5 ${
+              isUser
+                ? "bg-black text-white dark:bg-zinc-200 dark:text-black rounded-tr-sm"
+                : "bg-white text-zinc-900 shadow-sm border border-zinc-200/50 dark:bg-[#1a1a1a] dark:text-zinc-100 dark:border-zinc-800/50 rounded-tl-sm"
+            }`}
+          >
+            <div className="prose prose-sm dark:prose-invert max-w-none break-words leading-relaxed text-inherit">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content || ""}
+              </ReactMarkdown>
+            </div>
           </div>
-        )}
-        <div className="flex-1 space-y-2 overflow-hidden px-1">
-          <div className="prose prose-sm dark:prose-invert max-w-none break-words leading-relaxed text-inherit">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {message.content || ""}
-            </ReactMarkdown>
-          </div>
-          
+
           {plans.length > 0 && (
-            <div className="mt-4 flex flex-col gap-2 pt-2 border-t border-zinc-200 dark:border-zinc-700">
-              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <div className="mt-1 flex flex-col gap-2">
+              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 px-1">
                 可快捷导航的方案：
               </span>
               <div className="flex flex-wrap gap-2">
@@ -102,7 +105,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                     key={idx}
                     onClick={() => handlePlanClick(plan)}
                     disabled={isNavigating}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 hover:text-black focus:outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-white disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 shadow-sm transition-all hover:bg-zinc-50 hover:text-black focus:outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-white disabled:opacity-50"
                   >
                     <LuNavigation size={14} className={isNavigating ? "animate-pulse" : ""} />
                     {plan.name}
@@ -112,11 +115,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
             </div>
           )}
         </div>
-        {isUser && (
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-800 dark:bg-zinc-300 dark:text-black text-white">
-            <LuUser size={18} />
-          </div>
-        )}
       </div>
     </div>
   );

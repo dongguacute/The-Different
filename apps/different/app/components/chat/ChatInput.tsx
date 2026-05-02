@@ -41,29 +41,29 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
 
   return (
     <div className="relative mx-auto w-full max-w-3xl px-4 pb-6 pt-2 sm:px-6">
-      <div className="relative flex w-full flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm focus-within:ring-1 focus-within:ring-black dark:border-zinc-700 dark:bg-[#1a1a1a] dark:focus-within:ring-white">
+      <div className="relative flex w-full flex-col overflow-hidden rounded-3xl border border-zinc-200/80 bg-white shadow-sm transition-all focus-within:border-zinc-300 focus-within:ring-4 focus-within:ring-zinc-100 dark:border-zinc-800/80 dark:bg-[#1a1a1a] dark:focus-within:border-zinc-700 dark:focus-within:ring-zinc-800/50">
         <textarea
           ref={textareaRef}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="有什么我可以帮你的？"
-          className="max-h-[200px] w-full resize-none border-0 bg-transparent py-4 pl-4 pr-12 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-0 dark:text-zinc-100"
+          className="max-h-[200px] w-full resize-none border-0 bg-transparent py-4 pl-5 pr-12 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-0 dark:text-zinc-100"
           rows={1}
         />
         
         {/* 底部工具栏 */}
         <div className="flex items-center justify-between px-3 pb-3">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 pl-1">
             <button
               title="附加文件"
-              className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+              className="rounded-xl p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
             >
               <LuPaperclip size={18} />
             </button>
             <button
               title="语音输入"
-              className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+              className="rounded-xl p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
             >
               <LuMic size={18} />
             </button>
@@ -72,13 +72,13 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
           <button
             onClick={handleSend}
             disabled={!content.trim() || isLoading}
-            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+            className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all ${
               content.trim() && !isLoading
-                ? "bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                ? "bg-black text-white hover:scale-105 hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                 : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500"
             }`}
           >
-            <LuSend size={16} />
+            <LuSend size={16} className={content.trim() && !isLoading ? "translate-x-0.5" : ""} />
           </button>
         </div>
       </div>

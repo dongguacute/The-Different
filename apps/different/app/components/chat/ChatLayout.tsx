@@ -5,7 +5,7 @@ import { ChatSidebar, Session } from "./ChatSidebar";
 import { ChatMessage, Message } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { ChatForm, type ChatFormData } from "./ChatForm";
-import { LuPanelLeftOpen } from "react-icons/lu";
+import { LuPanelLeftOpen, LuBot } from "react-icons/lu";
 
 export function ChatLayout() {
   const [isMounted, setIsMounted] = useState(false);
@@ -254,7 +254,7 @@ export function ChatLayout() {
   const messages = currentSessionId ? (allMessages[currentSessionId] || []) : [];
 
   return (
-    <div className="flex h-dvh w-full overflow-hidden bg-white dark:bg-[#121212]">
+    <div className="flex h-dvh w-full overflow-hidden bg-zinc-50/50 dark:bg-[#121212]">
       {/* 侧边栏 */}
       <ChatSidebar 
         isOpen={isSidebarOpen} 
@@ -275,13 +275,15 @@ export function ChatLayout() {
       )}
 
       {/* 主聊天区域 */}
-      <main className="relative flex flex-1 flex-col min-w-0 overflow-hidden transition-all duration-300">
+      <main className="relative flex flex-1 flex-col min-w-0 overflow-hidden bg-zinc-50/30 transition-all duration-300 dark:bg-[#121212]">
+        {/* 背景网格/点阵图案 */}
+        <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-50 dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)]" />
         {/* 顶部导航 (移动端) */}
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-zinc-200 px-4 dark:border-zinc-800 md:hidden">
+        <header className="relative z-10 flex h-16 shrink-0 items-center justify-between border-b border-zinc-200/50 bg-white/50 px-4 backdrop-blur-md dark:border-zinc-800/50 dark:bg-[#121212]/50 md:hidden">
           <div className="flex items-center gap-3">
             <button
               onClick={toggleSidebar}
-              className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              className="rounded-xl p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
             >
               <LuPanelLeftOpen size={20} />
             </button>
@@ -299,7 +301,7 @@ export function ChatLayout() {
         >
           <button
             onClick={toggleSidebar}
-            className="rounded-lg border border-zinc-200 bg-white p-2 text-zinc-500 shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-[#1a1a1a] dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className="rounded-xl border border-zinc-200/80 bg-white/80 p-2.5 text-zinc-500 shadow-sm backdrop-blur-md transition-all hover:bg-white hover:text-zinc-900 dark:border-zinc-800/80 dark:bg-[#1a1a1a]/80 dark:text-zinc-400 dark:hover:bg-[#1a1a1a] dark:hover:text-zinc-100"
             title="打开侧边栏"
           >
             <LuPanelLeftOpen size={20} />
@@ -307,7 +309,7 @@ export function ChatLayout() {
         </div>
 
         {/* 聊天内容滚动区 */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="relative z-10 flex-1 overflow-y-auto">
           <div className="mx-auto flex w-full max-w-3xl flex-col px-4 py-8 sm:px-6 md:py-12">
             {messages.length === 0 ? (
               <div className="flex h-full flex-col justify-center py-4 animate-in fade-in duration-500">
@@ -320,15 +322,17 @@ export function ChatLayout() {
                 ))}
                 {isLoading && (
                   <div className="flex w-full justify-start mb-6">
-                    <div className="flex max-w-[85%] gap-4 rounded-2xl bg-white p-4 text-zinc-900 shadow-sm border border-zinc-100 dark:border-zinc-800 dark:bg-[#1a1a1a] dark:text-zinc-100 rounded-bl-sm md:max-w-[75%]">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
-                        <span className="animate-pulse text-lg">⋯</span>
+                    <div className="flex max-w-[85%] md:max-w-[75%] gap-3 flex-row">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black text-white dark:bg-white dark:text-black">
+                        <LuBot size={18} />
                       </div>
-                      <div className="flex items-center">
-                        <div className="flex space-x-1.5">
-                          <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.3s]"></div>
-                          <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.15s]"></div>
-                          <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400"></div>
+                      <div className="flex flex-col gap-2 min-w-0 items-start">
+                        <div className="rounded-3xl px-5 py-4 bg-white text-zinc-900 shadow-sm border border-zinc-200/50 dark:bg-[#1a1a1a] dark:text-zinc-100 dark:border-zinc-800/50 rounded-tl-sm flex items-center h-[44px]">
+                          <div className="flex space-x-1.5">
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.3s]"></div>
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.15s]"></div>
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -341,7 +345,7 @@ export function ChatLayout() {
 
         {/* 底部输入框 */}
         {messages.length > 0 && (
-          <div className="shrink-0 bg-linear-to-t from-white via-white to-transparent pt-6 dark:from-[#121212] dark:via-[#121212]">
+          <div className="relative z-10 shrink-0 bg-linear-to-t from-zinc-50/80 via-zinc-50/80 to-transparent pt-6 backdrop-blur-sm dark:from-[#121212] dark:via-[#121212]">
             <ChatInput onSend={handleSend} isLoading={isLoading} />
           </div>
         )}
