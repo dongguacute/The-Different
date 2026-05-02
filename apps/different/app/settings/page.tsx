@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { type apiConfig } from "@the-different/core";
 import { 
   LuSettings, 
@@ -39,7 +40,12 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-zinc-50/50 dark:bg-[#121212] py-12 px-4 sm:px-6 lg:px-8 transition-colors flex items-center justify-center">
-      <div className="w-full max-w-2xl space-y-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-2xl space-y-8"
+      >
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -155,7 +161,7 @@ export default function SettingsPage() {
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

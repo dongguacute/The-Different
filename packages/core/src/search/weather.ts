@@ -1,8 +1,8 @@
 import type {
   MessageWithoutWeather,
   WeatherLocationInput,
-} from "../input.ts";
-import type { Weather } from "../types/index.ts";
+} from "../input";
+import type { Weather } from "../types/index";
 
 /** 小米天气非公开接口常量（社区常用参数，可能随时变更）。 */
 const XIAOMI_WEATHER_BASE = "https://weatherapi.market.xiaomi.com/wtr-v3/weather/all";

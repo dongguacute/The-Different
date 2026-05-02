@@ -1,6 +1,6 @@
-import { type Message } from "./types/index.ts";
-import { type Weather } from "./types/index.ts";
-import { type apiConfig } from "./types/api.ts";
+import { type Message } from "./types/index";
+import { type Weather } from "./types/index";
+import { type apiConfig } from "./types/api";
 /** 与 `getInput` 第一参数一致，但尚未填入明日预报（可先据此请求天气）。 */
 export type MessageWithoutWeather = Omit<Message, "weather">;
 

@@ -4,9 +4,9 @@ import {
   getApiConfig,
   getInput,
   type MessageWithoutWeather,
-} from "../input.ts";
-import type { apiConfig } from "../types/api.ts";
-import { getTomorrowSunnyOrRainy } from "../search/weather.ts";
+} from "../input";
+import type { apiConfig } from "../types/api";
+import { getTomorrowSunnyOrRainy } from "../search/weather";
 
 /** 与官方 `ClientOptions` 一致，并可附加 `input.getApiConfig` 所用的 `api` 配置源。 */
 export type CreateOpenAICompatibleClientOptions = ClientOptions & {
@@ -57,14 +57,14 @@ export async function buildInputWithTomorrowWeather(
   return getInput({ ...message, weather }, weather);
 }
 
-export { getApiConfig } from "../input.ts";
-export type { apiConfig } from "../types/api.ts";
+export { getApiConfig } from "../input";
+export type { apiConfig } from "../types/api";
 export { OpenAI, type ClientOptions } from "openai";
 
-export type { PlannerChatRolesMessage } from "../prompt/planner.ts";
+export type { PlannerChatRolesMessage } from "../prompt/planner";
 export {
   buildOutingPlannerChatMessages,
   buildOutingPlannerChatPayload,
   formatOutingPlannerUserFactsMessage,
   loadOutingPlannerSystemPromptMarkdown,
-} from "../prompt/planner.ts";
+} from "../prompt/planner";

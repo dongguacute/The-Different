@@ -15,9 +15,10 @@ export interface Message {
 
 interface ChatMessageProps {
   message: Message;
+  onSelectPlan?: (plan: { name: string; location: string }) => void;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, onSelectPlan }: ChatMessageProps) {
   const isUser = message.role === "user";
   const [isNavigating, setIsNavigating] = useState(false);
 
@@ -36,11 +37,22 @@ export function ChatMessage({ message }: ChatMessageProps) {
     return matches;
   }, [message.content, isUser]);
 
-  const handlePlanClick = (plan: { name: string; location: string }) => {
+  // 提取 AI 回复中的单独导航点（用于“立即出发”按钮）
+  const navigateTo = useMemo(() => {
+    if (isUser) return null;
+    const regex = /###\s*导航至[:：]\s*([^\n\*]+)/;
+    const match = regex.exec(message.content);
+    if (match) {
+      return match[1].trim();
+    }
+    return null;
+  }, [message.content, isUser]);
+
+  const handleNavigate = (location: string) => {
     setIsNavigating(true);
     
     const fallbackSearch = () => {
-      window.open(`https://www.amap.com/search?query=${encodeURIComponent(plan.location)}`, "_blank");
+      window.open(`https://www.amap.com/search?query=${encodeURIComponent(location)}`, "_blank");
       setIsNavigating(false);
     };
 
@@ -53,7 +65,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        const url = `https://www.amap.com/dir?from[name]=我的位置&from[lnglat]=${longitude},${latitude}&to[name]=${encodeURIComponent(plan.location)}`;
+        const url = `https://www.amap.com/dir?from[name]=我的位置&from[lnglat]=${longitude},${latitude}&to[name]=${encodeURIComponent(location)}`;
         window.open(url, "_blank");
         setIsNavigating(false);
       },
@@ -64,6 +76,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
       },
       { timeout: 5000 }
     );
+  };
+
+  const handlePlanClick = (plan: { name: string; location: string }) => {
+    if (onSelectPlan) {
+      onSelectPlan(plan);
+    } else {
+      handleNavigate(plan.location);
+    }
   };
 
   return (
@@ -97,21 +117,32 @@ export function ChatMessage({ message }: ChatMessageProps) {
           {plans.length > 0 && (
             <div className="mt-1 flex flex-col gap-2">
               <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 px-1">
-                可快捷导航的方案：
+                选择你喜欢的方案：
               </span>
               <div className="flex flex-wrap gap-2">
                 {plans.map((plan, idx) => (
                   <button
                     key={idx}
                     onClick={() => handlePlanClick(plan)}
-                    disabled={isNavigating}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 shadow-sm transition-all hover:bg-zinc-50 hover:text-black focus:outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-white disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 shadow-sm transition-all hover:bg-zinc-50 hover:text-black focus:outline-none focus:ring-2 focus:ring-black dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-white"
                   >
-                    <LuNavigation size={14} className={isNavigating ? "animate-pulse" : ""} />
                     {plan.name}
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {navigateTo && (
+            <div className="mt-1 flex flex-col gap-2">
+              <button
+                onClick={() => handleNavigate(navigateTo)}
+                disabled={isNavigating}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 dark:bg-white dark:text-black dark:hover:bg-zinc-200 disabled:opacity-50"
+              >
+                <LuNavigation size={16} className={isNavigating ? "animate-pulse" : ""} />
+                立即出发 ({navigateTo})
+              </button>
             </div>
           )}
         </div>

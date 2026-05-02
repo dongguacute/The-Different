@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion } from "motion/react";
 import { 
   LuMapPin, 
   LuUser, 
@@ -57,7 +58,12 @@ export function ChatForm({ onSubmit, isLoading }: ChatFormProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-lg rounded-3xl border border-zinc-200/80 bg-white/80 p-8 shadow-xs backdrop-blur-xl dark:border-zinc-800/80 dark:bg-[#1a1a1a]/80">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="mx-auto w-full max-w-lg rounded-3xl border border-zinc-200/80 bg-white/80 p-8 shadow-xs backdrop-blur-xl dark:border-zinc-800/80 dark:bg-[#1a1a1a]/80"
+    >
       <div className="mb-8 text-center">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800/50">
           <LuSparkles className="h-6 w-6 text-zinc-900 dark:text-zinc-100" />
@@ -212,6 +218,6 @@ export function ChatForm({ onSubmit, isLoading }: ChatFormProps) {
           )}
         </button>
       </form>
-    </div>
+    </motion.div>
   );
 }

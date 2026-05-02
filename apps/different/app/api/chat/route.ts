@@ -65,10 +65,10 @@ export async function POST(req: NextRequest) {
     return new Response(readable, {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("API Error:", error);
     return NextResponse.json(
-      { error: error.message || "An error occurred" },
+      { error: error instanceof Error ? error.message : "An error occurred" },
       { status: 500 }
     );
   }

@@ -85,7 +85,7 @@ export function ChatLayout() {
     }
   };
 
-  const handleSend = (content: string) => {
+  const handleSend = async (content: string, isPlanSelection = false, location?: string) => {
     const newMessage: Message = {
       id: Date.now().toString(),
       role: "user",
@@ -118,23 +118,99 @@ export function ChatLayout() {
     
     setIsLoading(true);
 
-    // 模拟AI回复 (TODO: 这里也应该调用真正的 API，后续可以扩展普通对话)
-    setTimeout(() => {
-      const response: Message = {
+    try {
+      const savedApi = localStorage.getItem("apiSettings");
+      let apiSettings = undefined;
+      if (savedApi) {
+        try {
+          apiSettings = JSON.parse(savedApi);
+        } catch {
+          // ignore
+        }
+      }
+
+      // 获取当前会话的历史消息
+      const currentMessages = allMessages[finalSessionId] || [];
+      const messagesToSend = [...currentMessages, newMessage].map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+
+      const res = await fetch("/api/chat/continue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          messages: messagesToSend, 
+          apiSettings,
+          action: isPlanSelection ? "plan_selected" : "chat",
+          location: location
+        }),
+      });
+
+      if (!res.body) throw new Error("No response body");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let done = false;
+      let accumulatedContent = "";
+
+      const responseMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "目前这是一条普通对话的模拟回复。如果需要继续生成，可以对接对应的大模型API。",
+        content: accumulatedContent,
       };
-      
+
       setAllMessages(prev => {
         const currentMessages = prev[finalSessionId] || [];
         return {
           ...prev,
-          [finalSessionId]: [...currentMessages, response]
+          [finalSessionId]: [...currentMessages, responseMessage]
         };
       });
+
       setIsLoading(false);
-    }, 1500);
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          accumulatedContent += decoder.decode(value, { stream: true });
+          
+          setAllMessages(prev => {
+            const currentMessages = prev[finalSessionId] || [];
+            const newMessages = [...currentMessages];
+            const lastIndex = newMessages.length - 1;
+            if (lastIndex >= 0 && newMessages[lastIndex].id === responseMessage.id) {
+               newMessages[lastIndex] = { ...newMessages[lastIndex], content: accumulatedContent };
+            }
+            return {
+              ...prev,
+              [finalSessionId]: newMessages
+            };
+          });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "请求出错，请检查网络或环境变量配置。",
+      };
+      setAllMessages(prev => {
+        const currentMessages = prev[finalSessionId] || [];
+        return {
+          ...prev,
+          [finalSessionId]: [...currentMessages, errorMessage]
+        };
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSelectPlan = (plan: { name: string; location: string }) => {
+    handleSend(`我选择了方案：${plan.name}。请帮我搜索相关地点（${plan.location}）需不需要门票并总结信息，精选评价和攻略。`, true, plan.location);
   };
 
   const handleFormSubmit = async (formData: ChatFormData) => {
@@ -176,7 +252,9 @@ export function ChatLayout() {
       if (savedApi) {
         try {
           apiSettings = JSON.parse(savedApi);
-        } catch (e) {}
+        } catch {
+          // ignore
+        }
       }
 
       const res = await fetch("/api/chat", {
@@ -318,7 +396,7 @@ export function ChatLayout() {
             ) : (
               <div className="flex flex-col space-y-2 pb-20">
                 {messages.map((message) => (
-                  <ChatMessage key={message.id} message={message} />
+                  <ChatMessage key={message.id} message={message} onSelectPlan={handleSelectPlan} />
                 ))}
                 {isLoading && (
                   <div className="flex w-full justify-start mb-6">
@@ -346,7 +424,7 @@ export function ChatLayout() {
         {/* 底部输入框 */}
         {messages.length > 0 && (
           <div className="relative z-10 shrink-0 bg-linear-to-t from-zinc-50/80 via-zinc-50/80 to-transparent pt-6 backdrop-blur-sm dark:from-[#121212] dark:via-[#121212]">
-            <ChatInput onSend={handleSend} isLoading={isLoading} />
+            <ChatInput onSend={(c) => handleSend(c)} isLoading={isLoading} />
           </div>
         )}
       </main>

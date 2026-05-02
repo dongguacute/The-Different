@@ -1,14 +1,14 @@
 import { readFileSync } from "node:fs";
 
-import { getInput, type MessageWithoutWeather } from "../input.ts";
-import type { Weather } from "../types/index.ts";
+import { getInput, type MessageWithoutWeather } from "../input";
+import type { Weather } from "../types/index";
 import {
   describeTomorrowPrecipOutlook,
   getTomorrowSunnyOrRainy,
-} from "../search/weather.ts";
-import type { DouyinInspirationHit } from "../search/douyin.ts";
-import { searchDouyinInspirationHints } from "../search/douyin.ts";
-import { type OutingDateContext, getOutingDateContext } from "../time/outing.ts";
+} from "../search/weather";
+import type { DouyinInspirationHit } from "../search/douyin";
+import { searchDouyinInspirationHints } from "../search/douyin";
+import { type OutingDateContext, getOutingDateContext } from "../time/outing";
 
 let cachedPlannerSystemPrompt: string | undefined;
 
